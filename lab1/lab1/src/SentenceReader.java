@@ -13,6 +13,7 @@ public class SentenceReader {
         ArrayList<String> sentence = new ArrayList<>();
         while (fileReader.hasNext()) {
             String nextChar = fileReader.next();
+            sentence.add(nextChar);
             if (nextChar.contains(".")) {
                 observers.forEach(observer -> {
                     try {
@@ -23,7 +24,6 @@ public class SentenceReader {
                 });
                 sentence.clear();
             }
-            sentence.add(nextChar);
         }
     }
 

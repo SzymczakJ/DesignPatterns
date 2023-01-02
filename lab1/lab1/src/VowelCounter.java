@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class VowelCounter implements SentenceReaderObserver {
 
-    private String vovelsString = "aeiouAEIOU";
+    private String vovelsString = "aeiouyAEIOUY";
     int vovelsCount = 0;
 
 
