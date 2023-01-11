@@ -22,6 +22,7 @@ public class ListeningHandler extends Thread{
         while (true) {
             try {
                 received = dataInputStream.readUTF();
+                System.out.println("got message: ");
                 System.out.println(received);
             } catch (IOException e) {
                 throw new RuntimeException(e);

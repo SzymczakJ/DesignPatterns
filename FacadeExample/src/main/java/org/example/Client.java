@@ -17,9 +17,9 @@ public class Client {
         try {
             messenger.createListeningThread(ownedPort);
             messenger.createBroadcastListeningThread(ownedPort, name);
-            System.out.println("Client connected.");
+            System.out.println("(debug message) Client connected.");
             broadcast();
-            System.out.println("Broadcast sent.");
+            System.out.println("(debug message) Broadcast sent.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -40,6 +40,7 @@ public class Client {
     public void disconnect() {
         try {
             messenger.disconnect(ownedPort, name);
+            System.exit(0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

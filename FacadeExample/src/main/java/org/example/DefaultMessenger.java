@@ -7,19 +7,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultMessenger implements Messenger {
     private ServerSocket serverSocket = null;
     private ConcurrentHashMap<String, Integer> ports = new ConcurrentHashMap();
+    private Thread listeningThread;
+    private Thread broadcastThread;
 
     public void createListeningThread(int port) {
         Thread thread = new Thread(() -> {
             startListening(port);
         });
-        thread.start();
+        listeningThread = thread;
+        listeningThread.start();
     }
 
     public void createBroadcastListeningThread(int port, String name) {
         Thread thread = new Thread(() -> {
             startListeningToBroadcast(port, name);
         });
-        thread.start();
+        broadcastThread = thread;
+        broadcastThread.start();
     }
 
     public void broadcastIds(int ownedPort, String name, String method) throws IOException {
@@ -38,6 +42,8 @@ public class DefaultMessenger implements Messenger {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
             dataOutputStream.writeUTF(message);
+        } else {
+            System.out.println("no such user");
         }
     }
 
@@ -53,6 +59,13 @@ public class DefaultMessenger implements Messenger {
 
     public void disconnect(int port, String name) throws IOException {
         broadcastIds(port, name, "delete");
+        listeningThread.interrupt();
+        broadcastThread.interrupt();
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            System.out.println("something went wrong");
+//        }
         serverSocket.close();
     }
 
@@ -63,17 +76,19 @@ public class DefaultMessenger implements Messenger {
             throw new RuntimeException(e);
         }
 
-        while (true) {
+        boolean flag = true;
+        while (flag) {
             try {
                 Socket socket = serverSocket.accept();
                 DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-                System.out.println("Assigning new thread to client");
-                Thread thread = new ListeningHandler(socket, dataInputStream, dataOutputStream);
-                thread.start();
+                String received;
+                received = dataInputStream.readUTF();
+                System.out.println("got message: ");
+                System.out.println(received);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                flag = false;
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -96,7 +111,6 @@ public class DefaultMessenger implements Messenger {
                 if (receivedId[2].equals("delete")) {
                     ports.remove(receivedId[1]);
                 }
-//                System.out.println(ports.values());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
