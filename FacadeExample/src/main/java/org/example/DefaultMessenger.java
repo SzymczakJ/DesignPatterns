@@ -110,6 +110,8 @@ public class DefaultMessenger implements Messenger {
                 }
                 if (receivedId[2].equals("delete")) {
                     ports.remove(receivedId[1]);
+                    System.out.print("player is logging out ");
+                    System.out.println(receivedId[1]);
                 }
             }
         } catch (IOException e) {
